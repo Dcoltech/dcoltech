@@ -8,7 +8,7 @@
 @endpush
 
 @section('body')
-    <h1>About us</h1>
+    <h1>About us please read well</h1>
 
     <img src="/assets/img/about.png"
         alt="About image"
