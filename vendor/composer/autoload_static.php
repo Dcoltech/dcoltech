@@ -17,6 +17,10 @@ class ComposerStaticInit8a63e835c3c45178a525f87426b37643
     );
 
     public static $prefixLengthsPsr4 = array (
+        's' => 
+        array (
+            'samdark\\sitemap\\' => 16,
+        ),
         'T' => 
         array (
             'TightenCo\\Jigsaw\\' => 17,
@@ -67,9 +71,17 @@ class ComposerStaticInit8a63e835c3c45178a525f87426b37643
         array (
             'Carbon\\' => 7,
         ),
+        'A' => 
+        array (
+            'App\\Listeners\\' => 14,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'samdark\\sitemap\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/samdark/sitemap',
+        ),
         'TightenCo\\Jigsaw\\' => 
         array (
             0 => __DIR__ . '/..' . '/tightenco/jigsaw/src',
@@ -185,6 +197,11 @@ class ComposerStaticInit8a63e835c3c45178a525f87426b37643
         'Carbon\\' => 
         array (
             0 => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon',
+        ),
+        'App\\Listeners\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/listeners',
+            1 => __DIR__ . '/..' . '/tightenco/jigsaw-blog-template/listeners',
         ),
     );
 
