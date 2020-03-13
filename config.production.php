@@ -1,6 +1,6 @@
 <?php
 
 return [
-    'baseUrl' => 'https://dcoltech.com',
+    'baseUrl' => 'https://dcol.tech',
     'production' => true,
 ];
