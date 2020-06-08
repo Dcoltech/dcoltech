@@ -6,13 +6,13 @@ return [
     'baseUrl' => '',
     'production' => false,
     'siteName' => 'DcolTech',
-    'siteDescription' => 'La communaute des enthousiaste de la tech africaine',
+    'siteDescription' => 'La communauté des enthousiastes de la tech africaine.',
     'siteAuthor' => 'Boris DEHOUMON',
 
     // collections
     'collections' => [
         'posts' => [
-            'author' => 'Author Name', // Default author, if not provided in a post
+            'author' => '', // Default author, if not provided in a post
             'sort' => '-date',
             'path' => 'blog/{filename}',
         ],
