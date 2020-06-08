@@ -3,7 +3,6 @@
 use Dotenv\Dotenv;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\View\Compilers\BladeCompiler;
 use Illuminate\View\Engines\CompilerEngine;
 use Illuminate\View\Engines\EngineResolver;
 use Illuminate\View\Engines\PhpEngine;
@@ -38,6 +37,7 @@ use TightenCo\Jigsaw\Parsers\MarkdownParser;
 use TightenCo\Jigsaw\PathResolvers\BasicOutputPathResolver;
 use TightenCo\Jigsaw\PathResolvers\CollectionPathResolver;
 use TightenCo\Jigsaw\SiteBuilder;
+use TightenCo\Jigsaw\View\BladeCompiler;
 use TightenCo\Jigsaw\View\BladeMarkdownEngine;
 use TightenCo\Jigsaw\View\MarkdownEngine;
 use TightenCo\Jigsaw\View\ViewRenderer;
@@ -59,7 +59,7 @@ $container->setInstance($container);
 $container->instance('cwd', getcwd());
 
 if (file_exists($envPath = $container['cwd'] . '/.env')) {
-    (Dotenv::create($container['cwd']))->load();
+    (Dotenv::createImmutable($container['cwd']))->load();
 }
 
 $cachePath = $container['cwd'] . '/cache';
@@ -70,8 +70,10 @@ $container->instance('buildPath', [
     'destination' => $container['cwd'] . '/build_{env}',
 ]);
 
-$container->bind('config', function ($c) {
-    return (new ConfigFile($c['cwd'] . '/config.php', $c['cwd'] . '/helpers.php'))->config;
+$container->bind('config', function ($c) use ($cachePath) {
+    $config = (new ConfigFile($c['cwd'] . '/config.php', $c['cwd'] . '/helpers.php'))->config;
+    $config->put('view.compiled', $cachePath);
+    return $config;
 });
 
 $container->singleton('consoleOutput', function ($c) {
@@ -102,7 +104,11 @@ $container->bind(FrontMatterParser::class, function ($c) {
 
 $bladeCompiler = new BladeCompiler(new Filesystem, $cachePath);
 
-$container->bind(Factory::class, function ($c) use ($cachePath, $bladeCompiler) {
+$container->bind('bladeCompiler', function ($c) use ($bladeCompiler) {
+    return $bladeCompiler;
+});
+
+$container->singleton(Factory::class, function ($c) use ($cachePath, $bladeCompiler) {
     $resolver = new EngineResolver;
 
     $compilerEngine = new CompilerEngine($bladeCompiler, new Filesystem);
@@ -127,7 +133,14 @@ $container->bind(Factory::class, function ($c) use ($cachePath, $bladeCompiler) 
 
     $finder = new FileViewFinder(new Filesystem, [$cachePath, $c['buildPath']['source']]);
 
-    return new Factory($resolver, $finder, new FakeDispatcher());
+    $factory = new Factory($resolver, $finder, new FakeDispatcher());
+    $factory->setContainer($c);
+
+    return $factory;
+});
+
+$container->bind('view', function ($c) {
+    return $c[Factory::class];
 });
 
 $container->bind(ViewRenderer::class, function ($c) use ($bladeCompiler) {
@@ -188,7 +201,7 @@ $container->bind(SiteBuilder::class, function ($c) use ($cachePath) {
 });
 
 $container->bind(CollectionRemoteItemLoader::class, function ($c) {
-    return new CollectionRemoteItemLoader(new Filesystem);
+    return new CollectionRemoteItemLoader($c['config'], new Filesystem);
 });
 
 $container->singleton('events', function ($c) {

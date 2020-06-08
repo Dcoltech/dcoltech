@@ -177,8 +177,34 @@ class RemoteCollectionsTest extends TestCase
         ]);
         $this->buildSite($files, $config);
 
-        $this->assertCount(0, $files->getChild('source/_test')->getChildren());
         $this->assertNull($files->getChild('source/_test/_tmp'));
+    }
+
+    /**
+     * @test
+     */
+    public function temporary_parent_directory_for_remote_items_is_removed_if_empty_after_build_is_complete()
+    {
+        $config = collect([
+            'collections' => [
+                'test' => [
+                    'items' => [
+                        [
+                            'extends' => '_layouts.master',
+                            'content' => 'item content',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+        $files = $this->setupSource([
+            '_layouts' => [
+                'master.blade.php' => "<div>@yield('content')</div>",
+            ],
+        ]);
+        $this->buildSite($files, $config);
+
+        $this->assertNull($files->getChild('source/_test'));
     }
 
     /**
@@ -456,6 +482,37 @@ class RemoteCollectionsTest extends TestCase
         $this->assertEquals(
             '<div><p>item 2</p></div>',
             $this->clean($files->getChild('build/test/test-2.html')->getContent())
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function items_function_can_access_other_config_variables()
+    {
+        $config = collect([
+            'collections' => [
+                'test' => [
+                    'extends' => '_layouts.master',
+                    'items' => function ($config) {
+                        return [
+                            ['content' => $config['remote_url']],
+                        ];
+                    },
+                ],
+            ],
+            'remote_url' => 'https://example.com/api',
+        ]);
+        $files = $this->setupSource([
+            '_layouts' => [
+                'master.blade.php' => "<div>@yield('content')</div>",
+            ],
+        ]);
+        $this->buildSite($files, $config);
+
+        $this->assertEquals(
+            '<div><p>https://example.com/api</p></div>',
+            $this->clean($files->getChild('build/test/test-1.html')->getContent())
         );
     }
 

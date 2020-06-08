@@ -6,13 +6,9 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Symfony\Component\VarDumper\VarDumper;
 
-/**
- * Remove slashes (including backslashes on Windows),
- * spaces, and periods from the beginning and/or end of paths.
- */
 function leftTrimPath($path)
 {
-    return ltrim($path, ' .\\/');
+    return ltrim($path, ' \\/');
 }
 
 function rightTrimPath($path)
