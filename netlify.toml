@@ -1,5 +1,5 @@
 [build]
 
-command = "gulp --production"
+command = "./vendor/bin/jigsaw build production"
 publish = "build_production"
 environment = { PHP_VERSION = "7.2", NODE_VERSION = "11" }
